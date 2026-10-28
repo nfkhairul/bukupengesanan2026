@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Rekod Keberadaan Guru Dalam Kelas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tambahan library untuk memuat turun grid sebagai gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .grid-table th, .grid-table td { min-width: 120px; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-900 text-white p-4 shadow-md">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <h1 class="text-lg md:text-xl font-bold tracking-wider flex items-center gap-2 text-center md:text-left">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                Sistem Rekod Keberadaan Guru Dalam Kelas
+            </h1>
+            <div class="flex gap-2">
+                <button onclick="bukaModalRingkasan()" class="px-4 py-2 rounded bg-orange-600 hover:bg-orange-500 text-sm font-bold transition shadow-sm">Ringkasan</button>
+                <button id="btnNavAdmin" class="px-4 py-2 rounded bg-blue-700 hover:bg-blue-600 text-sm font-bold transition shadow-sm border border-blue-500">Log Masuk Admin</button>
+                <button id="btnLogout" class="hidden px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-sm font-bold transition shadow-sm">Log Keluar</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BAHAGIAN 1: BORANG RAKAMAN GURU -->
+    <div id="sectionBorang" class="container mx-auto p-4 mt-6 max-w-2xl">
+        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-800">
+            <h2 class="text-2xl font-bold text-blue-900 mb-2">Borang Keberadaan Guru</h2>
+            <p class="text-gray-500 mb-6 text-sm">Sila isi maklumat keberadaan anda di dalam kelas.</p>
+            
+            <form id="formRekod" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tarikh</label>
+                        <input type="date" id="tarikh" required class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Masa Mula</label>
+                            <select id="masaMula" required class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Masa Tamat</label>
+                            <select id="masaTamat" required class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Guru</label>
+                    <input type="text" id="namaGuru" required placeholder="Contoh: Ahmad bin Abu" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                        <select id="kelas" required class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Pilih Kelas</option>
+                            <option value="1A">1A</option><option value="1B">1B</option>
+                            <option value="2A">2A</option><option value="2B">2B</option>
+                            <option value="3A">3A</option><option value="3B">3B</option>
+                            <option value="4A">4A</option><option value="4B">4B</option>
+                            <option value="5A">5A</option><option value="5B">5B</option>
+                            <option value="6A">6A</option><option value="6B">6B</option>
+                            <option value="1J">1J</option><option value="1V">1V</option><option value="1M">1M</option>
+                            <option value="2J">2J</option><option value="2V">2V</option><option value="2M">2M</option>
+                            <option value="3J">3J</option><option value="3V">3V</option>
+                            <option value="4J">4J</option><option value="4V">4V</option><option value="4M">4M</option>
+                            <option value="5J">5J</option><option value="5V">5V</option><option value="5M">5M</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subjek</label>
+                        <input type="text" id="subjek" required placeholder="Contoh: Matematik" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2 mt-2">Status Kehadiran</label>
+                    <div class="flex flex-wrap gap-4 md:gap-6">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="status" value="Guru Mata Pelajaran" required class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 mr-2"> Guru Mata Pelajaran
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="status" value="Guru Ganti (Relief)" required class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 mr-2"> Guru Ganti (Relief)
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 mt-2">Catatan PdPc (Pilihan)</label>
+                    <textarea id="catatan" rows="2" class="w-full border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md">
+                        Hantar Rekod
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ringkasan Guru -->
+    <div id="modalRingkasan" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-7xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center bg-blue-900 text-white">
+                <h3 class="text-lg md:text-xl font-bold">Ringkasan Keberadaan - <span id="tarikhRingkasanSini"></span></h3>
+                <button onclick="tutupModalRingkasan()" class="text-white hover:text-red-400 focus:outline-none">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-3 flex flex-wrap gap-4 text-sm font-bold justify-center border-b bg-gray-100">
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-green-500 rounded border border-green-700"></span> ADA GURU</div>
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-red-500 rounded border border-red-700"></span> TIADA GURU</div>
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-yellow-400 rounded border border-yellow-600"></span> BELUM</div>
+            </div>
+            <div class="p-4 overflow-auto flex-grow" id="kandunganRingkasanGuru"></div>
+        </div>
+    </div>
+
+    <!-- Modal Log Masuk Admin -->
+    <div id="modalLogin" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-8 w-full max-w-sm shadow-2xl">
+            <h3 class="text-2xl font-bold mb-6 text-center text-blue-900">Log Masuk Admin</h3>
+            <input type="text" id="adminUser" placeholder="ID Pengguna" class="w-full border p-3 rounded mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="password" id="adminPass" placeholder="Kata Laluan" class="w-full border p-3 rounded mb-6 focus:ring-2 focus:ring-blue-500 outline-none">
+            <div class="flex gap-3">
+                <button id="btnBatalLogin" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 p-3 rounded font-bold transition">Batal</button>
+                <button id="btnSahkanLogin" class="w-1/2 bg-blue-700 hover:bg-blue-800 text-white p-3 rounded font-bold transition">Log Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAHAGIAN 2: ADMIN DASHBOARD -->
+    <div id="sectionAdmin" class="hidden container mx-auto p-4 mt-4">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-blue-900">Papan Pemuka Pentadbir</h2>
+            <!-- Butang Reset Semua Data -->
+            <button onclick="resetSemuaData()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-md transition shadow-md flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Reset Semua Data
+            </button>
+        </div>
+        
+        <!-- 3 Kad Statistik Utama -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-blue-500 flex flex-col justify-between">
+                <p class="text-gray-500 text-sm font-bold uppercase mb-2">JUMLAH DIREKODKAN (HARI INI)</p>
+                <p id="statTotal" class="text-4xl font-extrabold text-blue-900">0</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-red-500 flex flex-col justify-between">
+                <p class="text-gray-500 text-sm font-bold uppercase mb-2">Kelas Belum Masuk (Semasa)</p>
+                <p id="statBelum" class="text-4xl font-extrabold text-red-600">0 kelas</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-green-500 flex flex-col justify-between">
+                <p class="text-gray-500 text-sm font-bold uppercase mb-2">PERATUS KEMASUKAN GURU SEMASA</p>
+                <p id="statKadar" class="text-4xl font-extrabold text-green-600">0%</p>
+            </div>
+        </div>
+
+        <!-- Analisis & Carta -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h3 class="text-lg font-bold text-blue-900 mb-4">Top 3 Kelas Kerap Menerima Guru Ganti (Keseluruhan)</h3>
+            <div class="h-64"><canvas id="chartRelief"></canvas></div>
+        </div>
+
+        <!-- Grid Pengesanan -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-4 gap-4">
+                <h3 class="text-lg font-bold text-blue-900">Grid Pengesanan Keberadaan</h3>
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <input type="date" id="filterDateGrid" class="border p-2 rounded focus:ring-2 focus:ring-blue-500" onchange="janaGridAdmin()">
+                    <button onclick="janaGridAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded font-medium hover:bg-blue-700 hidden md:block shadow-sm">Muat Semula</button>
+                    <!-- Butang Muat Turun Grid -->
+                    <button onclick="muatTurunGrid()" class="bg-purple-600 text-white px-4 py-2 rounded font-medium hover:bg-purple-700 shadow-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Muat Turun Grid
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-4 text-sm font-bold mb-4 bg-gray-50 p-3 rounded border">
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-green-500 rounded border border-green-700"></span> ADA GURU</div>
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-red-500 rounded border border-red-700"></span> TIADA GURU</div>
+                <div class="flex items-center gap-2"><span class="w-5 h-5 bg-yellow-400 rounded border border-yellow-600"></span> BELUM</div>
+            </div>
+            <div class="overflow-x-auto border rounded bg-white" id="bekasGridAdmin" style="padding: 5px;"></div>
+        </div>
+
+        <!-- Muat Turun Laporan / Ringkasan -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border-t-4 border-green-500">
+            <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Muat Turun Laporan Data
+            </h3>
+            <p class="text-sm text-gray-500 mb-4">Pilih tarikh untuk memuat turun data rekod ke dalam format CSV (Boleh dibuka menggunakan Excel).</p>
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="w-full md:w-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tarikh Mula</label>
+                    <input type="date" id="eksportTarikhMula" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="w-full md:w-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tarikh Akhir</label>
+                    <input type="date" id="eksportTarikhAkhir" class="w-full border border-gray-300 p-2.5 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button onclick="eksportRingkasan()" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded transition shadow-sm">
+                    Muat Turun Data CSV
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">* Nota: Pilih Tarikh Mula dan Tarikh Akhir yang sama untuk memuat turun ringkasan bagi 1 hari sahaja.</p>
+        </div>
+
+        <!-- Jadual Data Lengkap -->
+        <div class="bg-white p-6 rounded-xl shadow-md">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                <h3 class="text-lg font-bold text-blue-900">Rekod Keseluruhan</h3>
+                <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                    <input type="date" id="filterTarikh" class="border p-2 rounded text-sm w-full md:w-auto" title="Tapis Tarikh">
+                    <input type="text" id="carian" placeholder="Cari Guru / Kelas..." class="border p-2 rounded text-sm w-full md:w-auto">
+                    <button onclick="muatJadual()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700">Tapis Carian</button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-3 text-sm font-semibold text-gray-600">Tarikh & Masa</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600">Nama Guru</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600">Kelas & Subjek</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600">Status</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600">Catatan</th>
+                            <th class="p-3 text-sm font-semibold text-gray-600 text-center">Padam</th>
+                        </tr>
+                    </thead>
+                    <tbody id="badanJadual" class="text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifikasi Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-green-500 text-white px-6 py-4 rounded-lg shadow-xl font-bold z-50 flex items-center gap-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span id="toastMsg">Rekod Berjaya Dihantar!</span>
+    </div>
+
+    <script>
+        const masaPoints = ["07:45", "08:15", "08:45", "09:15", "09:45", "10:15", "10:45", "11:15", "11:45", "12:15", "12:45", "13:15", "13:45", "14:15", "14:45"];
+        // Senarai kelas telah dikemaskini berdasarkan permintaan terbaharu
+        const senaraiKelas = ["1A", "1B", "2A", "2B", "3A", "3B", "4A", "4B", "5A", "5B", "6A", "6B", "1J", "1V", "1M", "2J", "2V", "2M", "3J", "3V", "4J", "4V", "4M", "5J", "5V", "5M"];
+        let chartInstance = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initMasaDropdown(); autoIsiTarikh(); renderPapanPemukaAdmin();
+        });
+
+        function autoIsiTarikh() {
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            const date = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+            document.getElementById('tarikh').value = date;
+            document.getElementById('filterDateGrid').value = date;
+            document.getElementById('eksportTarikhMula').value = date;
+            document.getElementById('eksportTarikhAkhir').value = date;
+        }
+
+        function initMasaDropdown() {
+            const mulaSel = document.getElementById('masaMula');
+            const tamatSel = document.getElementById('masaTamat');
+            masaPoints.slice(0, -1).forEach(m => mulaSel.add(new Option(m, m)));
+            masaPoints.slice(1).forEach(m => tamatSel.add(new Option(m, m)));
+            mulaSel.value = masaPoints[0];
+            tamatSel.value = masaPoints[1];
+        }
+
+        function simpanRekodDB(rekod) { localStorage.setItem('rekodKeberadaanGuru', JSON.stringify(rekod)); }
+        function dapatkanRekod() { return JSON.parse(localStorage.getItem('rekodKeberadaanGuru') || '[]'); }
+
+        document.getElementById('formRekod').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const tarikh = document.getElementById('tarikh').value;
+            const mula = document.getElementById('masaMula').value;
+            const tamat = document.getElementById('masaTamat').value;
+            const idxMula = masaPoints.indexOf(mula);
+            const idxTamat = masaPoints.indexOf(tamat);
+
+            if(idxMula >= idxTamat) return alert("Masa Tamat mesti selepas Masa Mula!");
+
+            let rekodSemasa = dapatkanRekod();
+            for(let i = idxMula; i < idxTamat; i++) {
+                const masaSlot = `${masaPoints[i]} - ${masaPoints[i+1]}`;
+                const dataBaru = {
+                    id: Date.now() + i.toString(), 
+                    tarikh: tarikh, 
+                    masa: masaSlot,
+                    namaGuru: document.getElementById('namaGuru').value.trim(),
+                    kelas: document.getElementById('kelas').value,
+                    subjek: document.getElementById('subjek').value.trim(),
+                    status: document.querySelector('input[name="status"]:checked').value,
+                    catatan: document.getElementById('catatan').value.trim(),
+                    timestamp: new Date().toISOString()
+                };
+                
+                const wujud = rekodSemasa.findIndex(r => r.tarikh === tarikh && r.masa === masaSlot && r.kelas === dataBaru.kelas);
+                if(wujud !== -1) rekodSemasa[wujud] = dataBaru;
+                else rekodSemasa.push(dataBaru);
+            }
+            simpanRekodDB(rekodSemasa);
+            
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+            this.reset(); autoIsiTarikh(); initMasaDropdown(); renderPapanPemukaAdmin();
+        });
+
+        // FUNGSI JANA GRID DIKEMASKINI: Menambah baris Tarikh di dalam jadual
+        function janaHTMLGrid(tarikhPilihan) {
+            const rekod = dapatkanRekod().filter(r => r.tarikh === tarikhPilihan);
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            const now = new Date();
+            const timeStr = String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
+            const todayStr = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+
+            let html = `<table class="grid-table w-full border-collapse border border-gray-300 text-xs bg-white">`;
+            
+            // Tambah baris header atas sekali untuk Tarikh supaya masuk dalam imej bila dimuat turun
+            html += `<thead>`;
+            html += `<tr class="bg-blue-100">
+                        <th colspan="${masaPoints.length}" class="border border-gray-300 p-3 text-center text-sm text-blue-900 font-bold uppercase">
+                            Grid Pengesanan Keberadaan Guru - Tarikh: ${tarikhPilihan}
+                        </th>
+                     </tr>`;
+            
+            // Baris header untuk slot masa
+            html += `<tr class="bg-gray-200"><th class="border border-gray-300 p-2 sticky left-0 bg-gray-200 z-10">KELAS</th>`;
+            for(let i=0; i<masaPoints.length-1; i++) html += `<th class="border border-gray-300 p-2 text-center whitespace-nowrap">${masaPoints[i]} - ${masaPoints[i+1]}</th>`;
+            html += `</tr></thead><tbody>`;
+
+            senaraiKelas.forEach(kelas => {
+                html += `<tr><td class="border border-gray-300 p-2 font-bold text-center sticky left-0 bg-white z-10 shadow-[1px_0_0_0_#d1d5db]">${kelas}</td>`;
+                for(let i=0; i<masaPoints.length-1; i++) {
+                    const slot = `${masaPoints[i]} - ${masaPoints[i+1]}`;
+                    const r = rekod.find(x => x.kelas === kelas && x.masa === slot);
+                    const past = (tarikhPilihan < todayStr) || (tarikhPilihan === todayStr && timeStr > masaPoints[i+1]);
+                    
+                    if(r) {
+                        let textCatatan = r.catatan ? `<br><span class="text-[10px] italic font-normal text-green-100 opacity-90 leading-tight block mt-1 break-words">${r.catatan}</span>` : '';
+                        html += `<td class="border border-gray-300 p-2 bg-green-500 text-white font-semibold text-center align-top whitespace-normal break-words" title="${r.subjek} - ${r.status}${r.catatan ? ' | ' + r.catatan : ''}">${r.namaGuru}${textCatatan}</td>`;
+                    }
+                    else if(past) html += `<td class="border border-gray-300 p-1 bg-red-500"></td>`;
+                    else html += `<td class="border border-gray-300 p-1 bg-yellow-400"></td>`;
+                }
+                html += `</tr>`;
+            });
+            return html + `</tbody></table>`;
+        }
+
+        function bukaModalRingkasan() {
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            const today = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+            document.getElementById('tarikhRingkasanSini').innerText = today;
+            document.getElementById('kandunganRingkasanGuru').innerHTML = janaHTMLGrid(today);
+            document.getElementById('modalRingkasan').classList.remove('hidden');
+        }
+        
+        function tutupModalRingkasan() { document.getElementById('modalRingkasan').classList.add('hidden'); }
+        function janaGridAdmin() { document.getElementById('bekasGridAdmin').innerHTML = janaHTMLGrid(document.getElementById('filterDateGrid').value); }
+
+        document.getElementById('btnNavAdmin').onclick = () => document.getElementById('modalLogin').classList.remove('hidden');
+        document.getElementById('btnBatalLogin').onclick = () => document.getElementById('modalLogin').classList.add('hidden');
+        
+        document.getElementById('btnSahkanLogin').onclick = () => {
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+            
+            if((user === 'gpkhem' || user === 'adminbukupengesanan') && pass === 'cea3060') {
+                document.getElementById('modalLogin').classList.add('hidden');
+                document.getElementById('sectionBorang').classList.add('hidden');
+                document.getElementById('sectionAdmin').classList.remove('hidden');
+                document.getElementById('btnNavAdmin').classList.add('hidden');
+                document.getElementById('btnLogout').classList.remove('hidden');
+                renderPapanPemukaAdmin();
+            } else {
+                alert('Kata laluan atau ID pengguna salah!');
+            }
+        };
+        
+        document.getElementById('btnLogout').onclick = () => {
+            document.getElementById('sectionAdmin').classList.add('hidden');
+            document.getElementById('sectionBorang').classList.remove('hidden');
+            document.getElementById('btnNavAdmin').classList.remove('hidden');
+            document.getElementById('btnLogout').classList.add('hidden');
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+        };
+
+        function renderPapanPemukaAdmin() {
+            const rekod = dapatkanRekod();
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            const now = new Date();
+            const hariIniStr = (new Date(now.getTime() - tzoffset)).toISOString().split('T')[0];
+            const timeStr = String(now.getHours()).padStart(2,'0') + ":" + String(now.getMinutes()).padStart(2,'0');
+            
+            const rekodHariIni = rekod.filter(r => r.tarikh === hariIniStr);
+            
+            // 1. Total Rekod Hari Ini (Tukar Teks)
+            document.getElementById('statTotal').innerText = rekodHariIni.length;
+
+            // Kiraan slot sepatutnya bermula
+            let expectedSlotsCount = 0;
+            for(let i=0; i<masaPoints.length-1; i++) {
+                if(timeStr >= masaPoints[i]) expectedSlotsCount++;
+            }
+            const totalExpectedClasses = expectedSlotsCount * senaraiKelas.length;
+            
+            // 2. Kelas Belum Masuk (Semasa) + " kelas"
+            let rekodMasukSemasa = rekodHariIni.filter(r => r.masa.split(' - ')[0] <= timeStr).length;
+            let kelasBelum = totalExpectedClasses - rekodMasukSemasa;
+            if(kelasBelum < 0) kelasBelum = 0;
+            document.getElementById('statBelum').innerText = kelasBelum + " kelas";
+
+            // 3. Kadar MMI Semasa -> PERATUS KEMASUKAN GURU SEMASA
+            const kadar = totalExpectedClasses > 0 ? Math.round((rekodMasukSemasa / totalExpectedClasses) * 100) : 100;
+            document.getElementById('statKadar').innerText = `${kadar > 100 ? 100 : kadar}%`;
+
+            // 4. Carta (Top 3 Kelas Guru Ganti) - Data Keseluruhan
+            const rekodGanti = rekod.filter(r => r.status === 'Guru Ganti (Relief)');
+            const kelasCount = {};
+            rekodGanti.forEach(r => { kelasCount[r.kelas] = (kelasCount[r.kelas] || 0) + 1; });
+            const sortedKelas = Object.entries(kelasCount).sort((a,b) => b[1] - a[1]).slice(0,3);
+            
+            if(chartInstance) chartInstance.destroy();
+            const ctx = document.getElementById('chartRelief').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedKelas.length ? sortedKelas.map(i => `Kelas ${i[0]}`) : ['Tiada Data'],
+                    datasets: [{ label: 'Kekerapan Guru Ganti', data: sortedKelas.length ? sortedKelas.map(i => i[1]) : [0], backgroundColor: '#3b82f6', borderRadius: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            janaGridAdmin(); muatJadual();
+        }
+
+        function muatJadual() {
+            const rekod = dapatkanRekod();
+            const filterTarikh = document.getElementById('filterTarikh').value;
+            const carian = document.getElementById('carian').value.toLowerCase();
+            const tbody = document.getElementById('badanJadual');
+            tbody.innerHTML = '';
+
+            let dataTapis = rekod;
+            if(filterTarikh) dataTapis = dataTapis.filter(r => r.tarikh === filterTarikh);
+            if(carian) dataTapis = dataTapis.filter(r => r.namaGuru.toLowerCase().includes(carian) || r.kelas.toLowerCase().includes(carian));
+
+            dataTapis.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if(dataTapis.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">Tiada rekod ditemui.</td></tr>`;
+                return;
+            }
+
+            dataTapis.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-gray-50";
+                const badge = r.status.includes('Ganti') ? 
+                    `<span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded border border-yellow-300">Guru Ganti</span>` : 
+                    `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded border border-green-300">Guru Subjek</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3">${r.tarikh}<br><span class="text-xs text-gray-500">${r.masa}</span></td>
+                    <td class="p-3 font-medium text-gray-800">${r.namaGuru}</td>
+                    <td class="p-3">${r.kelas}<br><span class="text-xs text-gray-500">${r.subjek}</span></td>
+                    <td class="p-3">${badge}</td>
+                    <td class="p-3 text-sm text-gray-600">${r.catatan || '-'}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="padamRekod('${r.id}')" class="text-red-500 hover:text-red-700" title="Padam"><svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function padamRekod(id) {
+            if(confirm("Padam rekod ini?")) {
+                simpanRekodDB(dapatkanRekod().filter(r => r.id !== id));
+                renderPapanPemukaAdmin();
+            }
+        }
+
+        function eksportRingkasan() {
+            const rekod = dapatkanRekod();
+            const tarikhMula = document.getElementById('eksportTarikhMula').value;
+            const tarikhAkhir = document.getElementById('eksportTarikhAkhir').value;
+
+            if(!tarikhMula || !tarikhAkhir) {
+                return alert("Sila pilih Tarikh Mula dan Tarikh Akhir terlebih dahulu.");
+            }
+
+            if(tarikhMula > tarikhAkhir) {
+                return alert("Tarikh Akhir mesti sama atau selepas Tarikh Mula.");
+            }
+
+            const dataTapis = rekod.filter(r => r.tarikh >= tarikhMula && r.tarikh <= tarikhAkhir);
+
+            if(dataTapis.length === 0) {
+                return alert("Tiada rekod data dijumpai pada tarikh yang dipilih.");
+            }
+
+            dataTapis.sort((a,b) => new Date(a.tarikh + 'T' + a.masa.split(' - ')[0]) - new Date(b.tarikh + 'T' + b.masa.split(' - ')[0]));
+
+            let csv = "Tarikh,Masa,Nama Guru,Kelas,Subjek,Status,Catatan\n" + dataTapis.map(r => `${r.tarikh},${r.masa},"${r.namaGuru}",${r.kelas},"${r.subjek}",${r.status},"${r.catatan.replace(/"/g, '""')}"`).join("\n");
+            
+            let namaFail = tarikhMula === tarikhAkhir ? `Laporan_Keberadaan_${tarikhMula}.csv` : `Laporan_Keberadaan_${tarikhMula}_Hingga_${tarikhAkhir}.csv`;
+
+            const link = document.createElement("a");
+            link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+            link.download = namaFail;
+            document.body.appendChild(link);
+            link.click(); 
+            document.body.removeChild(link);
+        }
+
+        function muatTurunGrid() {
+            const container = document.getElementById('bekasGridAdmin');
+            const table = container.querySelector('table'); 
+            
+            if(!table) return alert("Tiada data grid untuk dimuat turun.");
+            
+            html2canvas(table, { 
+                backgroundColor: '#ffffff',
+                scale: 2 
+            }).then(canvas => {
+                const tarikhGrid = document.getElementById('filterDateGrid').value;
+                const link = document.createElement('a');
+                link.download = `Grid_Keberadaan_${tarikhGrid}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("Ralat ketika memuat turun gambar:", err);
+                alert("Gagal memuat turun grid. Sila cuba sebentar lagi.");
+            });
+        }
+
+        function resetSemuaData() {
+            if(confirm("AMARAN: Anda pasti mahu memadam KESELURUHAN data di dalam sistem ini? Tindakan ini tidak boleh dipulihkan!")) {
+                if(confirm("Sahkan sekali lagi untuk PADAM SEMUA DATA. Teruskan?")) {
+                    localStorage.removeItem('rekodKeberadaanGuru');
+                    renderPapanPemukaAdmin(); 
+                    alert("Semua data telah berjaya dipadamkan dari sistem.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
